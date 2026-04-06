@@ -4,6 +4,16 @@
 
 ---
 
+> 🚧 **This project is actively maintained and open to contributions!**
+> If you find a bug, have a suggestion, or want to improve something — please open an [issue](../../issues) or submit a [pull request](../../pulls). I'd really appreciate it!
+> If you find this useful or interesting, consider giving it a ⭐ — it genuinely helps!
+
+---
+
+🍴 **Feel free to fork this repo and make it your own.**
+Whether you want to swap the motors, add a different AI model, or build a completely new dashboard on top of it — go for it.
+Pull requests are warmly welcomed, no matter how small. Even fixing a typo counts! 😊
+
 ## ✨ Features
 
 - **Dual-mode operation** — Autonomous patrol with obstacle avoidance, or manual WASD/D-pad control
