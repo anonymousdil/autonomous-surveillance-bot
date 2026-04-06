@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ASB v2 — Surveillance Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+<style>
+:root{
+  --g:#00ff88;--gd:#00cc6a;--gdark:#003318;--gg:rgba(0,255,136,.15);
+  --r:#ff3344;--rd:#cc1122;
+  --a:#ffaa00;--ad:#cc8800;
+  --b:#3388ff;--bd:#1155cc;
+  --bg:#020c06;--bg2:#040f08;--bg3:#060e0a;
+  --bdr:rgba(0,255,136,.22);--bdrh:rgba(0,255,136,.55);
+  --dim:rgba(0,255,136,.4);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--g);
+  font-family:'Share Tech Mono',monospace;font-size:12px;cursor:crosshair}
+
+/* scanlines */
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 4px)}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:9998;
+  background:radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.8) 100%)}
+
+/* ── Header ── */
+header{display:flex;align-items:center;justify-content:space-between;
+  padding:6px 16px;border-bottom:1px solid var(--bdr);background:rgba(0,18,8,.92);
+  backdrop-filter:blur(4px);position:relative;z-index:10;height:48px}
+.logo{font-family:'Orbitron',sans-serif;font-size:18px;font-weight:900;
+  letter-spacing:6px;text-shadow:0 0 18px var(--g),0 0 40px rgba(0,255,136,.2)}
+.logo small{display:block;font-size:9px;letter-spacing:3px;color:var(--dim);margin-top:-3px}
+.hrow{display:flex;align-items:center;gap:14px}
+.pill{display:flex;align-items:center;gap:6px;padding:3px 10px;
+  border:1px solid var(--bdr);font-size:10px;letter-spacing:1px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--g);
+  box-shadow:0 0 7px var(--g);animation:blink 1.6s ease-in-out infinite}
+.dot.off{background:var(--r);box-shadow:0 0 7px var(--r);animation:none}
+.dot.warn{background:var(--a);box-shadow:0 0 7px var(--a)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.clk{font-family:'Orbitron',sans-serif;font-size:12px;color:var(--gd);letter-spacing:2px}
+
+/* ── Grid: 5 columns ── */
+.grid{
+  display:grid;
+  grid-template-columns:240px 1fr 220px 220px 220px;
+  grid-template-rows:calc(100vh - 48px);
+  gap:1px;background:var(--bdr);height:calc(100vh - 48px)
+}
+.panel{background:var(--bg2);padding:12px;overflow:hidden;position:relative;display:flex;flex-direction:column;gap:8px}
+.ptitle{font-family:'Orbitron',sans-serif;font-size:9px;letter-spacing:3px;color:var(--dim);
+  padding-bottom:7px;border-bottom:1px solid var(--bdr);flex-shrink:0;
+  display:flex;justify-content:space-between;align-items:center}
+.badge{font-size:8px;padding:2px 6px;border:1px solid var(--g);color:var(--g)}
+
+/* ── Radar ── */
+#radarCanvas{display:block;margin:0 auto;border-radius:50%;
+  box-shadow:0 0 25px rgba(0,255,136,.08)}
+.stat2{display:grid;grid-template-columns:1fr 1fr;gap:5px;flex-shrink:0}
+.sbox{border:1px solid var(--bdr);padding:5px 7px;background:var(--bg3)}
+.slbl{font-size:8px;color:var(--dim);letter-spacing:1px}
+.sval{font-family:'Orbitron',sans-serif;font-size:13px;color:var(--g);margin-top:1px}
+.sval.warn{color:var(--a)}.sval.alert{color:var(--r)}
+
+/* ── Camera feed ── */
+.cam-wrap{flex:1;position:relative;background:#000;border:1px solid var(--bdr);overflow:hidden;min-height:0}
+.cam-wrap img{width:100%;height:100%;object-fit:contain;display:block}
+.corner{position:absolute;width:18px;height:18px}
+.corner.tl{top:7px;left:7px;border-top:2px solid var(--g);border-left:2px solid var(--g)}
+.corner.tr{top:7px;right:7px;border-top:2px solid var(--g);border-right:2px solid var(--g)}
+.corner.bl{bottom:7px;left:7px;border-bottom:2px solid var(--g);border-left:2px solid var(--g)}
+.corner.br{bottom:7px;right:7px;border-bottom:2px solid var(--g);border-right:2px solid var(--g)}
+.chud{position:absolute;top:10px;left:12px;font-size:9px;color:var(--gd);letter-spacing:1px}
+.cfps{position:absolute;top:10px;right:12px;font-size:9px;color:var(--dim)}
+.tbanner{position:absolute;bottom:0;left:0;right:0;background:rgba(200,20,30,.85);
+  color:#fff;text-align:center;padding:5px;font-family:'Orbitron',sans-serif;
+  font-size:10px;letter-spacing:3px;display:none;animation:fblink .45s ease infinite alternate}
+@keyframes fblink{from{opacity:1}to{opacity:.35}}
+.threat-active .tbanner{display:block}
+.tipped-banner{position:absolute;top:0;left:0;right:0;background:rgba(180,0,0,.9);
+  color:#fff;text-align:center;padding:6px;font-family:'Orbitron',sans-serif;
+  font-size:10px;letter-spacing:2px;display:none;animation:fblink .3s ease infinite alternate}
+.tipped .tipped-banner{display:block}
+
+/* detections */
+.dlist{font-size:10px;overflow-y:auto;max-height:80px}
+.ditem{display:flex;justify-content:space-between;line-height:1.9}
+.dt{color:var(--r)}.ds{color:var(--dim)}
+
+/* ── Controls panel ── */
+.mode-row{display:flex;gap:6px;flex-shrink:0}
+.mbtn{flex:1;padding:9px 4px;border:1px solid var(--bdr);background:transparent;
+  color:var(--dim);font-family:'Orbitron',sans-serif;font-size:8px;letter-spacing:2px;
+  cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.mbtn:hover{color:var(--g);border-color:var(--g)}
+.mbtn.act-s{color:var(--bg);background:var(--g);border-color:var(--g);box-shadow:0 0 14px var(--gg)}
+.mbtn.act-c{color:var(--bg);background:var(--a);border-color:var(--a);box-shadow:0 0 14px rgba(255,170,0,.2)}
+
+/* dpad */
+.dpad{display:grid;grid-template-areas:". u ." "l st r" ". d .";
+  grid-template-columns:1fr 1fr 1fr;gap:5px;width:140px;margin:6px auto}
+.db{height:40px;border:1px solid var(--bdr);background:var(--bg3);color:var(--dim);
+  font-size:16px;cursor:pointer;transition:all .1s;display:flex;align-items:center;
+  justify-content:center;user-select:none;border-radius:2px}
+.db:hover,.db.pressed{background:var(--gdark);border-color:var(--g);color:var(--g);box-shadow:0 0 8px var(--gg)}
+.db[data-d=u]{grid-area:u}.db[data-d=l]{grid-area:l}.db[data-d=st]{grid-area:st;font-size:9px;
+  font-family:'Orbitron',sans-serif;letter-spacing:1px}.db[data-d=r]{grid-area:r}.db[data-d=d]{grid-area:d}
+.spd-row{display:flex;align-items:center;gap:7px;margin:4px 0}
+input[type=range]{flex:1;-webkit-appearance:none;height:3px;background:var(--bdr);outline:none;border-radius:2px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;
+  border-radius:50%;background:var(--g);box-shadow:0 0 7px var(--g);cursor:pointer}
+.ctrl-off{opacity:.3;pointer-events:none;transition:opacity .3s}
+
+/* ── IMU Panel ── */
+#horizonCanvas{display:block;margin:0 auto;border-radius:50%;flex-shrink:0;
+  box-shadow:0 0 20px rgba(0,100,255,.1)}
+.imu-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;flex-shrink:0}
+#pitchBar,#rollBar{height:8px;border-radius:2px;background:var(--bdr);overflow:hidden;margin-top:3px}
+#pitchFill,#rollFill{height:100%;width:50%;background:var(--g);border-radius:2px;transition:width .15s,background .2s}
+#speedArc{display:block;margin:0 auto;flex-shrink:0}
+.imu-stat{display:grid;grid-template-columns:1fr 1fr;gap:5px;flex-shrink:0}
+
+/* ── Tilt history canvas ── */
+#histCanvas{display:block;width:100%;flex-shrink:0}
+
+/* ── Log panel ── */
+.loglist{font-size:10px;line-height:1.85;overflow-y:auto;flex:1;min-height:0}
+.litem{display:flex;gap:7px}.lt{color:rgba(0,255,136,.28);white-space:nowrap}
+.l-threat{color:var(--r)}.l-info{color:var(--gd)}.l-warn{color:var(--a)}
+
+/* conn rows */
+.crow{display:flex;align-items:center;gap:7px;padding:5px 0;
+  border-bottom:1px solid var(--bdr);font-size:10px;color:var(--dim)}
+.crow:last-child{border:none}
+.rssi{display:flex;gap:2px;align-items:flex-end;height:12px}
+.rssi span{width:3px;background:var(--bdr);border-radius:1px;transition:background .3s}
+.rssi span.on{background:var(--g)}
+kbd{display:inline-block;border:1px solid var(--bdr);padding:1px 5px;border-radius:2px;
+  font-size:9px;color:var(--dim);margin:1px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">ASB <small>AUTONOMOUS SURVEILLANCE BOT  v2.0 + IMU</small></div>
+  <div class="hrow">
+    <div class="pill"><div class="dot off" id="dotEsp"></div><span id="lblEsp">ESP32 OFFLINE</span></div>
+    <div class="pill"><div class="dot" id="dotCam"></div><span>CAMERA</span></div>
+    <div class="pill"><div class="dot warn" id="dotImu"></div><span id="lblImu">IMU INIT</span></div>
+    <div class="clk" id="clk">00:00:00</div>
+  </div>
+</header>
+
+<div class="grid">
+
+  <!-- COL 1: Radar -->
+  <div class="panel">
+    <div class="ptitle">RADAR SWEEP <span class="badge" id="bdgAngle">090°</span></div>
+    <canvas id="radarCanvas" width="214" height="214"></canvas>
+    <div class="stat2">
+      <div class="sbox"><div class="slbl">DISTANCE</div><div class="sval" id="svDist">---</div></div>
+      <div class="sbox"><div class="slbl">ANGLE</div><div class="sval" id="svAngle">---</div></div>
+      <div class="sbox"><div class="slbl">RSSI</div><div class="sval" id="svRssi" style="font-size:11px">--</div></div>
+      <div class="sbox"><div class="slbl">FPS</div><div class="sval" id="svFps">--</div></div>
+    </div>
+    <div class="ptitle" style="margin-top:4px">SYSTEM</div>
+    <div class="crow"><div class="dot off" id="sdEsp"></div>ESP32 MAIN
+      <div class="rssi" id="rssiBar"><span style="height:3px"></span><span style="height:6px"></span><span style="height:9px"></span><span style="height:12px"></span></div>
+    </div>
+    <div class="crow"><div class="dot" id="sdCam"></div>ESP32-CAM</div>
+    <div class="crow"><div class="dot warn" id="sdImu"></div>MPU-6050 IMU</div>
+    <div class="crow"><div class="dot" id="sdYolo"></div>YOLO DETECT</div>
+  </div>
+
+  <!-- COL 2: Camera -->
+  <div class="panel" style="padding:10px;gap:8px">
+    <div class="cam-wrap" id="camWrap">
+      <img id="camFeed" src="" alt="initialising…">
+      <div class="corner tl"></div><div class="corner tr"></div>
+      <div class="corner bl"></div><div class="corner br"></div>
+      <div class="chud" id="chud">● REC&nbsp;&nbsp;SURVEILLANCE</div>
+      <div class="cfps" id="cfps">0.0 FPS</div>
+      <div class="tipped-banner">⚠ BOT TIPPED OVER</div>
+      <div class="tbanner" id="tbanner">⚠ THREAT DETECTED</div>
+    </div>
+    <div style="border:1px solid var(--bdr);padding:7px;flex-shrink:0">
+      <div class="ptitle" style="margin-bottom:5px">DETECTIONS</div>
+      <div class="dlist" id="dlist"><span style="color:var(--dim)">No objects</span></div>
+    </div>
+  </div>
+
+  <!-- COL 3: Controls -->
+  <div class="panel">
+    <div class="ptitle">MODE</div>
+    <div class="mode-row">
+      <button class="mbtn act-s" id="btnS" onclick="setMode('surveillance')">◈ SURV</button>
+      <button class="mbtn"       id="btnC" onclick="setMode('control')">✦ CTRL</button>
+    </div>
+    <div class="ptitle" style="margin-top:4px">DRIVE <span style="font-size:8px;color:var(--dim)" id="ctrlHint">(enable CONTROL mode)</span></div>
+    <div id="ctrlSection" class="ctrl-off">
+      <div class="dpad">
+        <button class="db" data-d="u" onmousedown="ds('fwd')"   onmouseup="dstop()" ontouchstart="ds('fwd')"   ontouchend="dstop()">▲</button>
+        <button class="db" data-d="l" onmousedown="ds('left')"  onmouseup="dstop()" ontouchstart="ds('left')"  ontouchend="dstop()">◄</button>
+        <button class="db" data-d="st" onclick="dstop()">STOP</button>
+        <button class="db" data-d="r" onmousedown="ds('right')" onmouseup="dstop()" ontouchstart="ds('right')" ontouchend="dstop()">►</button>
+        <button class="db" data-d="d" onmousedown="ds('rev')"   onmouseup="dstop()" ontouchstart="ds('rev')"   ontouchend="dstop()">▼</button>
+      </div>
+      <div class="spd-row">
+        <span style="font-size:9px;color:var(--dim)">SPD</span>
+        <input type="range" id="spdSlider" min="80" max="255" value="180">
+        <span id="spdVal" style="font-size:9px;width:22px;text-align:right">180</span>
+      </div>
+      <div style="color:var(--dim);font-size:9px;line-height:2;margin-top:4px">
+        <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> keyboard<br>
+        <kbd>SPACE</kbd> stop
+      </div>
+    </div>
+    <div class="ptitle" style="margin-top:4px">EVENT LOG</div>
+    <div class="loglist" id="logList">
+      <div class="litem"><span class="lt">--:--:--</span><span class="l-info">System starting…</span></div>
+    </div>
+  </div>
+
+  <!-- COL 4: IMU Gauges -->
+  <div class="panel">
+    <div class="ptitle">IMU  MPU-6050 <span class="badge" id="bdgUpright">OK</span></div>
+
+    <!-- Artificial horizon -->
+    <canvas id="horizonCanvas" width="194" height="130"></canvas>
+
+    <!-- Pitch / Roll bars -->
+    <div class="imu-grid">
+      <div class="sbox">
+        <div class="slbl">PITCH</div>
+        <div class="sval" id="svPitch">0.0°</div>
+        <div id="pitchBar"><div id="pitchFill"></div></div>
+      </div>
+      <div class="sbox">
+        <div class="slbl">ROLL</div>
+        <div class="sval" id="svRoll">0.0°</div>
+        <div id="rollBar"><div id="rollFill"></div></div>
+      </div>
+    </div>
+
+    <!-- Speed arc -->
+    <div class="ptitle">ADAPTIVE SPEED</div>
+    <canvas id="speedArc" width="194" height="110"></canvas>
+
+    <!-- Slope + factor -->
+    <div class="imu-stat">
+      <div class="sbox"><div class="slbl">BASE SPD</div><div class="sval" id="svSpd">160</div></div>
+      <div class="sbox"><div class="slbl">FACTOR</div><div class="sval" id="svFactor">1.00×</div></div>
+      <div class="sbox"><div class="slbl">SLOPE</div><div class="sval" id="svSlope">FLAT</div></div>
+      <div class="sbox"><div class="slbl">STATUS</div><div class="sval" id="svUpright">UPRIGHT</div></div>
+    </div>
+  </div>
+
+  <!-- COL 5: Tilt History -->
+  <div class="panel">
+    <div class="ptitle">TILT HISTORY  <span class="badge">60s</span></div>
+    <canvas id="histCanvas" width="218" height="160"></canvas>
+
+    <div class="ptitle" style="margin-top:2px">SLOPE GUIDE</div>
+    <div style="font-size:10px;line-height:2;color:var(--dim)">
+      <div style="display:flex;justify-content:space-between">
+        <span>Flat  &lt;8°</span><span style="color:var(--g)">SPD ×1.00</span></div>
+      <div style="display:flex;justify-content:space-between">
+        <span>Uphill +15°</span><span style="color:var(--a)">SPD ×1.10</span></div>
+      <div style="display:flex;justify-content:space-between">
+        <span>Uphill +30°</span><span style="color:var(--a)">SPD ×1.20</span></div>
+      <div style="display:flex;justify-content:space-between">
+        <span>Uphill +45°</span><span style="color:var(--r)">SPD ×1.30</span></div>
+      <div style="display:flex;justify-content:space-between">
+        <span>Downhill −15°</span><span style="color:var(--b)">SPD ×0.90</span></div>
+      <div style="display:flex;justify-content:space-between">
+        <span>Downhill −30°</span><span style="color:var(--b)">SPD ×0.80</span></div>
+      <div style="display:flex;justify-content:space-between">
+        <span>Tipped &gt;45°</span><span style="color:var(--r)">STOP</span></div>
+    </div>
+
+    <div class="ptitle" style="margin-top:2px">AXIS LEGEND</div>
+    <canvas id="axisCanvas" width="218" height="90"></canvas>
+  </div>
+
+</div>
+
+<script>
+// ─── Socket ────────────────────────────────────────────────────
+const socket = io();
+let mode  = 'surveillance', speed = 180;
+let imuData = { pitch:0, roll:0, upright:true, onSlope:false, baseSpeed:160, factor:1.0 };
+let pitchHist = [], rollHist = [], spdHist = [];
+const HIST_MAX = 60;
+
+// ─── Clock ─────────────────────────────────────────────────────
+setInterval(() => {
+  document.getElementById('clk').textContent = new Date().toTimeString().slice(0,8);
+}, 1000);
+
+// ─── Radar canvas ──────────────────────────────────────────────
+const RC = document.getElementById('radarCanvas');
+const rctx = RC.getContext('2d');
+const RW = RC.width, RH = RC.height, CX = RW/2, CY = RH/2, RAD = RW/2 - 3;
+const rHist = new Array(181).fill(null);
+
+function drawRadar(angle, dist) {
+  rctx.clearRect(0,0,RW,RH);
+  rctx.fillStyle='#010a04'; rctx.beginPath(); rctx.arc(CX,CY,RAD,0,Math.PI*2); rctx.fill();
+  [.25,.5,.75,1].forEach(f=>{
+    rctx.beginPath(); rctx.arc(CX,CY,RAD*f,0,Math.PI);
+    rctx.strokeStyle=`rgba(0,255,136,${.07+f*.06})`; rctx.lineWidth=1; rctx.stroke();
+  });
+  for(let a=0;a<=180;a+=30){
+    const r=(a*Math.PI)/180;
+    rctx.beginPath(); rctx.moveTo(CX,CY); rctx.lineTo(CX+RAD*Math.cos(Math.PI-r),CY-RAD*Math.sin(Math.PI-r));
+    rctx.strokeStyle='rgba(0,255,136,.09)'; rctx.lineWidth=1; rctx.stroke();
+  }
+  rHist.forEach((pt,a)=>{
+    if(!pt) return;
+    const age=(Date.now()-pt.time)/4000; if(age>1) return;
+    const alpha=(1-age)*.85, nr=Math.min(pt.distance/300,1)*RAD;
+    const rad=(a*Math.PI)/180;
+    const px=CX+nr*Math.cos(Math.PI-rad), py=CY-nr*Math.sin(Math.PI-rad);
+    const close=pt.distance<50;
+    rctx.beginPath(); rctx.arc(px,py,close?4:2.5,0,Math.PI*2);
+    rctx.fillStyle=close?`rgba(255,50,60,${alpha})`:`rgba(0,255,136,${alpha})`;
+    rctx.shadowColor=close?'rgba(255,50,60,.7)':'rgba(0,255,136,.4)'; rctx.shadowBlur=close?8:4;
+    rctx.fill(); rctx.shadowBlur=0;
+  });
+  const sr=(angle*Math.PI)/180;
+  const sx=CX+RAD*Math.cos(Math.PI-sr), sy=CY-RAD*Math.sin(Math.PI-sr);
+  const g=rctx.createLinearGradient(CX,CY,sx,sy);
+  g.addColorStop(0,'rgba(0,255,136,0)'); g.addColorStop(1,'rgba(0,255,136,.9)');
+  rctx.beginPath(); rctx.moveTo(CX,CY); rctx.lineTo(sx,sy);
+  rctx.strokeStyle=g; rctx.lineWidth=2; rctx.shadowColor='rgba(0,255,136,.5)';
+  rctx.shadowBlur=5; rctx.stroke(); rctx.shadowBlur=0;
+  rctx.beginPath(); rctx.arc(CX,CY,3,0,Math.PI*2);
+  rctx.fillStyle='rgba(0,255,136,.7)'; rctx.fill();
+  rctx.beginPath(); rctx.arc(CX,CY,RAD,0,Math.PI*2);
+  rctx.strokeStyle='rgba(0,255,136,.28)'; rctx.lineWidth=1.5; rctx.stroke();
+}
+drawRadar(90,300);
+
+// ─── Artificial Horizon ────────────────────────────────────────
+const HC = document.getElementById('horizonCanvas');
+const hctx = HC.getContext('2d');
+const HW = HC.width, HH = HC.height;
+
+function drawHorizon(pitch, roll) {
+  hctx.clearRect(0,0,HW,HH);
+  const cx=HW/2, cy=HH/2;
+  hctx.save(); hctx.beginPath(); hctx.ellipse(cx,cy,cx-2,cy-2,0,0,Math.PI*2);
+  hctx.clip();
+
+  const rollR = roll*Math.PI/180;
+  const pitchPx = pitch * (HH/120);
+
+  hctx.save(); hctx.translate(cx,cy); hctx.rotate(rollR);
+  // Sky
+  hctx.fillStyle='#001a0a';
+  hctx.fillRect(-HW,-HH-pitchPx,HW*2,HH);
+  // Ground
+  hctx.fillStyle='#0a1200';
+  hctx.fillRect(-HW,-pitchPx,HW*2,HH);
+  // Horizon line
+  hctx.strokeStyle=roll===0&&pitch===0?'rgba(0,255,136,.6)':'rgba(0,255,136,.9)';
+  hctx.lineWidth=1.5;
+  hctx.beginPath(); hctx.moveTo(-HW,-pitchPx); hctx.lineTo(HW,-pitchPx); hctx.stroke();
+  // Pitch ladder lines
+  for(let p=-3;p<=3;p++){
+    if(p===0) continue;
+    const yp=-(pitchPx+p*12);
+    hctx.strokeStyle='rgba(0,255,136,.25)'; hctx.lineWidth=1;
+    hctx.beginPath(); hctx.moveTo(-30,yp); hctx.lineTo(30,yp); hctx.stroke();
+    hctx.fillStyle='rgba(0,255,136,.4)'; hctx.font='8px Share Tech Mono';
+    hctx.textAlign='center'; hctx.fillText(`${p*10}`,38,yp+3);
+  }
+  hctx.restore(); hctx.restore();
+
+  // Outer ring
+  hctx.beginPath(); hctx.ellipse(cx,cy,cx-2,cy-2,0,0,Math.PI*2);
+  hctx.strokeStyle='rgba(0,255,136,.35)'; hctx.lineWidth=1.5; hctx.stroke();
+  // Roll arc ticks
+  for(let a=-90;a<=90;a+=30){
+    const r=a*Math.PI/180;
+    const r1=cx-3, r2=cx-8;
+    hctx.beginPath();
+    hctx.moveTo(cx+r1*Math.sin(r), cy-r1*Math.cos(r));
+    hctx.lineTo(cx+r2*Math.sin(r), cy-r2*Math.cos(r));
+    hctx.strokeStyle='rgba(0,255,136,.4)'; hctx.lineWidth=1; hctx.stroke();
+  }
+  // Roll pointer
+  const rr=roll*Math.PI/180;
+  const pr=cx-10;
+  hctx.beginPath();
+  hctx.moveTo(cx+pr*Math.sin(rr)-5*Math.cos(rr), cy-pr*Math.cos(rr)-5*Math.sin(rr));
+  hctx.lineTo(cx+pr*Math.sin(rr)+5*Math.cos(rr), cy-pr*Math.cos(rr)+5*Math.sin(rr));
+  hctx.lineTo(cx+(pr+8)*Math.sin(rr),             cy-(pr+8)*Math.cos(rr));
+  hctx.closePath(); hctx.fillStyle='rgba(255,170,0,.9)'; hctx.fill();
+  // Centre crosshair
+  const col = (Math.abs(pitch)<15&&Math.abs(roll)<15)?'rgba(0,255,136,.7)':'rgba(255,80,80,.8)';
+  hctx.strokeStyle=col; hctx.lineWidth=1.5;
+  hctx.beginPath(); hctx.moveTo(cx-18,cy); hctx.lineTo(cx-6,cy); hctx.stroke();
+  hctx.beginPath(); hctx.moveTo(cx+6,cy);  hctx.lineTo(cx+18,cy); hctx.stroke();
+  hctx.beginPath(); hctx.moveTo(cx,cy-8); hctx.lineTo(cx,cy+8); hctx.stroke();
+  hctx.beginPath(); hctx.arc(cx,cy,4,0,Math.PI*2);
+  hctx.strokeStyle=col; hctx.lineWidth=1.5; hctx.stroke();
+}
+drawHorizon(0,0);
+
+// ─── Speed Arc ────────────────────────────────────────────────
+const SA = document.getElementById('speedArc');
+const sactx = SA.getContext('2d');
+const SW=SA.width, SH=SA.height;
+
+function drawSpeedArc(spd, factor) {
+  sactx.clearRect(0,0,SW,SH);
+  const cx=SW/2, cy=SH-14, r=SH-24;
+  const minA = Math.PI, maxA = 0;
+  const minSpd=70, maxSpd=245;
+  const norm = (spd-minSpd)/(maxSpd-minSpd);
+  const curA = Math.PI - norm*Math.PI;
+
+  // Background arc
+  sactx.beginPath(); sactx.arc(cx,cy,r,Math.PI,0,false);
+  sactx.strokeStyle='rgba(0,255,136,.1)'; sactx.lineWidth=10; sactx.stroke();
+
+  // Coloured arc
+  const col = factor>=1.2?'#ff4444': factor>=1.0?'#00ff88': '#3388ff';
+  sactx.beginPath(); sactx.arc(cx,cy,r,Math.PI,curA,false);
+  const grd=sactx.createLinearGradient(cx-r,cy,cx+r,cy);
+  grd.addColorStop(0,'#3388ff'); grd.addColorStop(0.5,'#00ff88'); grd.addColorStop(1,'#ff4444');
+  sactx.strokeStyle=grd; sactx.lineWidth=10;
+  sactx.shadowColor=col; sactx.shadowBlur=10; sactx.stroke(); sactx.shadowBlur=0;
+
+  // Needle
+  const nx=cx+r*Math.cos(curA), ny=cy-r*Math.sin(curA);
+  sactx.beginPath(); sactx.moveTo(cx,cy); sactx.lineTo(nx,ny);
+  sactx.strokeStyle='rgba(255,255,255,.7)'; sactx.lineWidth=2; sactx.stroke();
+
+  // Labels
+  sactx.font='9px Share Tech Mono'; sactx.textAlign='center';
+  [[70,'70',Math.PI],[160,'160',Math.PI/2],[245,'245',0]].forEach(([,lbl,a])=>{
+    const lx=cx+r*Math.cos(a), ly=cy-r*Math.sin(a);
+    sactx.fillStyle='rgba(0,255,136,.35)'; sactx.fillText(lbl,lx,ly-10);
+  });
+
+  // Centre value
+  sactx.font='bold 22px Orbitron,monospace'; sactx.fillStyle=col;
+  sactx.textAlign='center'; sactx.fillText(spd, cx, cy-6);
+  sactx.font='9px Share Tech Mono'; sactx.fillStyle='rgba(0,255,136,.4)';
+  sactx.fillText(`×${factor.toFixed(2)}`, cx, cy+10);
+}
+drawSpeedArc(160,1.0);
+
+// ─── Tilt History graph ────────────────────────────────────────
+const GC = document.getElementById('histCanvas');
+const gctx = GC.getContext('2d');
+const GW=GC.width, GH=GC.height;
+
+function drawHistory(ph, rh, sh) {
+  gctx.clearRect(0,0,GW,GH);
+  gctx.fillStyle='#020c06'; gctx.fillRect(0,0,GW,GH);
+  // Grid
+  for(let y=0;y<5;y++){
+    const yy=(y/4)*GH;
+    gctx.beginPath(); gctx.moveTo(0,yy); gctx.lineTo(GW,yy);
+    gctx.strokeStyle='rgba(0,255,136,.07)'; gctx.lineWidth=1; gctx.stroke();
+  }
+  gctx.font='8px Share Tech Mono'; gctx.fillStyle='rgba(0,255,136,.25)';
+  gctx.textAlign='right';
+  ['+45°','+22°','0°','-22°','-45°'].forEach((l,i)=>gctx.fillText(l,GW-2,i*GH/4+10));
+
+  function plotLine(data, color) {
+    if(data.length<2) return;
+    gctx.beginPath();
+    data.forEach((v,i)=>{
+      const x=(i/(HIST_MAX-1))*GW;
+      const y=GH*(0.5-v/90);
+      i===0?gctx.moveTo(x,y):gctx.lineTo(x,y);
+    });
+    gctx.strokeStyle=color; gctx.lineWidth=1.5; gctx.stroke();
+  }
+
+  plotLine(ph, 'rgba(0,255,136,.8)');
+  plotLine(rh, 'rgba(255,170,0,.6)');
+
+  // Legend
+  gctx.font='9px Share Tech Mono';
+  gctx.fillStyle='rgba(0,255,136,.7)'; gctx.textAlign='left'; gctx.fillText('— PITCH',5,GH-16);
+  gctx.fillStyle='rgba(255,170,0,.6)';                         gctx.fillText('— ROLL', 72,GH-16);
+
+  // Zero line
+  gctx.beginPath(); gctx.moveTo(0,GH/2); gctx.lineTo(GW,GH/2);
+  gctx.strokeStyle='rgba(0,255,136,.2)'; gctx.lineWidth=1; gctx.setLineDash([4,4]); gctx.stroke();
+  gctx.setLineDash([]);
+}
+drawHistory([],[],[]);
+
+// ─── Axis diagram ──────────────────────────────────────────────
+const AC = document.getElementById('axisCanvas');
+const actx = AC.getContext('2d');
+function drawAxis(){
+  actx.clearRect(0,0,AC.width,AC.height);
+  const cx=AC.width/2, cy=AC.height/2;
+  // Bot body
+  actx.fillStyle='#071510';
+  actx.strokeStyle='rgba(0,255,136,.4)'; actx.lineWidth=1.5;
+  actx.beginPath(); actx.roundRect(cx-28,cy-18,56,36,4); actx.fill(); actx.stroke();
+  actx.fillStyle='rgba(0,255,136,.5)'; actx.font='7px Share Tech Mono';
+  actx.textAlign='center'; actx.fillText('BOT TOP',cx,cy+5);
+  // Pitch arrow (front-back)
+  actx.strokeStyle='rgba(0,255,136,.7)'; actx.lineWidth=2;
+  actx.beginPath(); actx.moveTo(cx,cy-26); actx.lineTo(cx,cy-42);
+  actx.stroke();
+  actx.beginPath(); actx.moveTo(cx-4,cy-38); actx.lineTo(cx,cy-45); actx.lineTo(cx+4,cy-38); actx.stroke();
+  actx.fillStyle='rgba(0,255,136,.6)'; actx.textAlign='center'; actx.fillText('PITCH+',cx,cy-48);
+  actx.beginPath(); actx.moveTo(cx,cy+26); actx.lineTo(cx,cy+42); actx.stroke();
+  actx.beginPath(); actx.moveTo(cx-4,cy+38); actx.lineTo(cx,cy+45); actx.lineTo(cx+4,cy+38); actx.stroke();
+  actx.fillText('PITCH−',cx,cy+55);
+  // Roll arrow (left-right)
+  actx.strokeStyle='rgba(255,170,0,.7)';
+  actx.beginPath(); actx.moveTo(cx-36,cy); actx.lineTo(cx-52,cy); actx.stroke();
+  actx.beginPath(); actx.moveTo(cx-48,cy-4); actx.lineTo(cx-55,cy); actx.lineTo(cx-48,cy+4); actx.stroke();
+  actx.fillStyle='rgba(255,170,0,.6)'; actx.textAlign='center'; actx.fillText('ROLL−',cx-55,cy-7);
+  actx.beginPath(); actx.moveTo(cx+36,cy); actx.lineTo(cx+52,cy); actx.stroke();
+  actx.beginPath(); actx.moveTo(cx+48,cy-4); actx.lineTo(cx+55,cy); actx.lineTo(cx+48,cy+4); actx.stroke();
+  actx.fillText('ROLL+',cx+55,cy-7);
+}
+drawAxis();
+
+// ─── Update IMU UI ─────────────────────────────────────────────
+function updateIMUPanel(d) {
+  imuData = d;
+  const { pitch, roll, upright, onSlope, baseSpeed, factor } = d;
+
+  drawHorizon(pitch, roll);
+  drawSpeedArc(baseSpeed, factor);
+
+  // Pitch bar — centre=50%, range ±45°
+  const pPct = Math.min(100, Math.max(0, 50 + (pitch/45)*50));
+  const rPct = Math.min(100, Math.max(0, 50 + (roll/45)*50));
+  document.getElementById('pitchFill').style.width = `${pPct}%`;
+  document.getElementById('rollFill').style.width  = `${rPct}%`;
+  const pCol = Math.abs(pitch)>30?'var(--r)': Math.abs(pitch)>15?'var(--a)':'var(--g)';
+  const rCol = Math.abs(roll) >30?'var(--r)': Math.abs(roll) >15?'var(--a)':'var(--g)';
+  document.getElementById('pitchFill').style.background = pCol;
+  document.getElementById('rollFill').style.background  = rCol;
+
+  document.getElementById('svPitch').textContent  = `${pitch>0?'+':''}${pitch.toFixed(1)}°`;
+  document.getElementById('svRoll').textContent   = `${roll>0?'+':''}${roll.toFixed(1)}°`;
+  document.getElementById('svSpd').textContent    = baseSpeed;
+  document.getElementById('svFactor').textContent = `${factor.toFixed(2)}×`;
+  document.getElementById('svSlope').textContent  = onSlope ? `${pitch>0?'↑':' ↓'}${Math.abs(pitch).toFixed(0)}°` : 'FLAT';
+  document.getElementById('svSlope').className    = `sval ${onSlope?'warn':''}`;
+
+  const uprightEl = document.getElementById('svUpright');
+  uprightEl.textContent = upright ? 'UPRIGHT' : '⚠ TIPPED';
+  uprightEl.className   = `sval ${upright?'':'alert'}`;
+  document.getElementById('bdgUpright').textContent = upright ? 'OK' : '⚠';
+  document.getElementById('bdgUpright').style.color = upright ? 'var(--g)' : 'var(--r)';
+  document.getElementById('bdgUpright').style.borderColor = upright ? 'var(--g)' : 'var(--r)';
+
+  // IMU header dot
+  const imuDot = document.getElementById('dotImu');
+  imuDot.className = upright ? 'dot' : 'dot warn';
+  document.getElementById('lblImu').textContent = upright ? 'IMU OK' : 'IMU ⚠ TIPPED';
+  document.getElementById('sdImu').style.background = 'var(--g)';
+  document.getElementById('sdImu').style.boxShadow  = '0 0 7px var(--g)';
+
+  // History
+  if(d.history) {
+    pitchHist = d.history.map(h=>h.pitch);
+    rollHist  = d.history.map(h=>h.roll);
+    spdHist   = d.history.map(h=>h.speed);
+    drawHistory(pitchHist, rollHist, spdHist);
+  }
+
+  // Tipped overlay on camera
+  document.getElementById('camWrap').classList.toggle('tipped', !upright);
+}
+
+// ─── Socket events ─────────────────────────────────────────────
+socket.on('connect', () => {
+  addLog('Dashboard connected', 'info');
+  socket.emit('get_state');
+});
+
+socket.on('radar', data => {
+  rHist[data.angle] = { distance: data.distance, time: Date.now() };
+  drawRadar(data.angle, data.distance);
+  document.getElementById('bdgAngle').textContent = `${String(data.angle).padStart(3,'0')}°`;
+  document.getElementById('svAngle').textContent  = `${data.angle}°`;
+  document.getElementById('svDist').textContent   = `${data.distance}cm`;
+});
+
+socket.on('frame', data => {
+  document.getElementById('camFeed').src = 'data:image/jpeg;base64,' + data.image;
+  document.getElementById('cfps').textContent = `${data.fps} FPS`;
+  document.getElementById('svFps').textContent = data.fps;
+  document.getElementById('chud').textContent  = `● REC   ${(data.mode||'').toUpperCase()}`;
+  document.getElementById('sdYolo').style.background = 'var(--g)';
+  document.getElementById('dotCam').className  = 'dot';
+  document.getElementById('sdCam').style.background  = 'var(--g)';
+  document.getElementById('sdCam').style.boxShadow   = '0 0 7px var(--g)';
+
+  // Detections
+  const dl = document.getElementById('dlist');
+  dl.innerHTML = data.detections?.length
+    ? data.detections.map(d=>
+        `<div class="ditem ${d.threat?'dt':'ds'}">
+          <span>${d.label.toUpperCase()}</span>
+          <span>${Math.round(d.confidence*100)}%</span>
+        </div>`).join('')
+    : '<span style="color:var(--dim)">No objects</span>';
+
+  // Threat
+  const threat = data.threat;
+  document.getElementById('camWrap').classList.toggle('threat-active', threat);
+  if(threat) document.getElementById('tbanner').textContent = `⚠ THREAT: ${(data.labels||[]).join(', ').toUpperCase()}`;
+});
+
+socket.on('imu', data => updateIMUPanel(data));
+
+socket.on('esp32_status', data => {
+  const on = data.connected;
+  ['dotEsp','sdEsp'].forEach(id => {
+    document.getElementById(id).style.background  = on?'var(--g)':'var(--r)';
+    document.getElementById(id).style.boxShadow   = `0 0 7px ${on?'var(--g)':'var(--r)'}`;
+  });
+  document.getElementById('dotEsp').className  = on?'dot':'dot off';
+  document.getElementById('lblEsp').textContent = on?'ESP32 ONLINE':'ESP32 OFFLINE';
+  if(on) addLog('ESP32 connected','info'); else addLog('ESP32 offline','warn');
+});
+
+socket.on('heartbeat', data => {
+  if(data.rssi !== undefined) {
+    document.getElementById('svRssi').textContent = `${data.rssi}dB`;
+    const bars = document.querySelectorAll('#rssiBar span');
+    const s = Math.min(4, Math.max(0, Math.round((data.rssi+100)/18)));
+    bars.forEach((b,i)=>b.classList.toggle('on',i<s));
+  }
+});
+
+socket.on('mode_changed', data => { mode=data.mode; updateModeUI(); });
+
+socket.on('full_state', data => {
+  mode = data.mode; updateModeUI();
+  if(data.log) [...data.log].reverse().slice(0,8).forEach(e=>addLog(e.msg,e.type));
+  if(data.pitch!==undefined)
+    updateIMUPanel({ pitch:data.pitch, roll:data.roll, upright:data.upright,
+                     onSlope:data.onSlope, baseSpeed:data.baseSpeed, factor:data.imuFactor, history:[] });
+});
+
+// ─── Mode ──────────────────────────────────────────────────────
+function setMode(m) { socket.emit('set_mode',{mode:m}); mode=m; updateModeUI(); }
+function updateModeUI() {
+  const ctrl = document.getElementById('ctrlSection');
+  const hint = document.getElementById('ctrlHint');
+  document.getElementById('btnS').className = mode==='surveillance'?'mbtn act-s':'mbtn';
+  document.getElementById('btnC').className = mode==='control'     ?'mbtn act-c':'mbtn';
+  ctrl.classList.toggle('ctrl-off', mode!=='control');
+  hint.textContent = mode==='control'?'(WASD / D-pad)':'(enable CONTROL mode)';
+}
+
+// ─── Drive ─────────────────────────────────────────────────────
+const dirMap = {fwd:{left:1,right:1},rev:{left:-1,right:-1},left:{left:-1,right:1},right:{left:1,right:-1}};
+let driveIv = null;
+function ds(dir) {
+  if(mode!=='control') return;
+  const m=dirMap[dir]; if(!m) return;
+  const cmd={left:m.left*speed, right:m.right*speed};
+  socket.emit('drive',cmd);
+  driveIv=setInterval(()=>socket.emit('drive',cmd),100);
+  document.querySelector(`[data-d="${{fwd:'u',rev:'d',left:'l',right:'r'}[dir]||dir}"]`)?.classList.add('pressed');
+}
+function dstop() {
+  clearInterval(driveIv);
+  socket.emit('drive',{left:0,right:0});
+  document.querySelectorAll('.db').forEach(b=>b.classList.remove('pressed'));
+}
+const kmap={w:'fwd',a:'left',s:'rev',d:'right',ArrowUp:'fwd',ArrowLeft:'left',ArrowDown:'rev',ArrowRight:'right'};
+const kdown=new Set();
+document.addEventListener('keydown',e=>{
+  if(e.code==='Space'){e.preventDefault();dstop();return;}
+  const d=kmap[e.key]; if(!d||kdown.has(e.key)) return; kdown.add(e.key); ds(d);
+});
+document.addEventListener('keyup',e=>{
+  const d=kmap[e.key]; if(!d) return; kdown.delete(e.key); if(kdown.size===0) dstop();
+});
+document.getElementById('spdSlider').addEventListener('input',e=>{
+  speed=parseInt(e.target.value);
+  document.getElementById('spdVal').textContent=speed;
+});
+
+// ─── Log ───────────────────────────────────────────────────────
+function addLog(msg, type='info') {
+  const list=document.getElementById('logList');
+  const t=new Date().toTimeString().slice(0,8);
+  const d=document.createElement('div'); d.className='litem';
+  d.innerHTML=`<span class="lt">${t}</span><span class="l-${type}">${msg}</span>`;
+  list.prepend(d);
+  while(list.children.length>40) list.lastChild.remove();
+}
+
+addLog('ASB v2.0 + IMU Dashboard ready','info');
+</script>
+</body>
+</html>
