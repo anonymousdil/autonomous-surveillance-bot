@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.env
+venv/
+env/
+
+# YOLO weights (too large for GitHub)
+*.pt
+*.onnx
+
+# OpenCV / misc
+*.jpg
+*.jpeg
+*.png
+*.mp4
+*.avi
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
