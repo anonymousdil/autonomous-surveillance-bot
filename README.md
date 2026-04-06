@@ -18,7 +18,8 @@
 
 ## 📸 Dashboard Preview
 
-> *(Add a screenshot or GIF of the dashboard here — drag and drop an image into this section on GitHub)*
+> *<img width="1470" height="831" alt="image" src="https://github.com/user-attachments/assets/0e30e410-b6b1-4c67-a1e7-ee401bfffd10" />
+*
 
 ---
 
