@@ -1,0 +1,311 @@
+<svg viewBox="0 0 1100 820" xmlns="http://www.w3.org/2000/svg" font-family="'Courier New', monospace">
+  <defs>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <marker id="arrowG" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#00ff88"/>
+    </marker>
+    <marker id="arrowR" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#ff4455"/>
+    </marker>
+    <marker id="arrowY" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#ffcc00"/>
+    </marker>
+    <marker id="arrowB" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#4488ff"/>
+    </marker>
+    <marker id="arrowO" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 z" fill="#ff8800"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1100" height="820" fill="#020c06"/>
+  <rect width="1100" height="820" fill="url(#scanlines)" opacity="0.05"/>
+
+  <!-- Title -->
+  <text x="550" y="32" text-anchor="middle" fill="#00ff88" font-size="18" font-weight="bold" letter-spacing="5" filter="url(#glow)">ASB — WIRING DIAGRAM</text>
+  <text x="550" y="50" text-anchor="middle" fill="#00664433" font-size="11" letter-spacing="2">AUTONOMOUS SURVEILLANCE BOT</text>
+  <line x1="80" y1="58" x2="1020" y2="58" stroke="#00ff8833" stroke-width="1"/>
+
+  <!-- ═══════════════════════ ESP32 MAIN ═══════════════════════ -->
+  <rect x="390" y="70" width="180" height="280" rx="4" fill="#030f08" stroke="#00ff88" stroke-width="1.5"/>
+  <rect x="390" y="70" width="180" height="26" rx="4" fill="#004422"/>
+  <text x="480" y="88" text-anchor="middle" fill="#00ff88" font-size="11" font-weight="bold" letter-spacing="2">ESP32 MAIN</text>
+  <!-- Left pins -->
+  <text x="398" y="115" fill="#00cc66" font-size="9">3V3 ●</text>
+  <text x="398" y="130" fill="#ff4455" font-size="9">GND ●</text>
+  <text x="398" y="145" fill="#00cc66" font-size="9">GPIO 12 ●</text>
+  <text x="398" y="160" fill="#00cc66" font-size="9">GPIO 13 ●</text>
+  <text x="398" y="175" fill="#00cc66" font-size="9">GPIO 14 ●</text>
+  <text x="398" y="190" fill="#00cc66" font-size="9">GPIO 25 ●</text>
+  <text x="398" y="205" fill="#00cc66" font-size="9">GPIO 26 ●</text>
+  <text x="398" y="220" fill="#00cc66" font-size="9">GPIO 27 ●</text>
+  <text x="398" y="235" fill="#00cc66" font-size="9">GPIO 33 ●</text>
+  <text x="398" y="260" fill="#00cc66" font-size="9">GPIO 18 ●</text>
+  <text x="398" y="275" fill="#00cc66" font-size="9">GPIO 19 ●</text>
+  <text x="398" y="290" fill="#00cc66" font-size="9">GPIO 21 ●</text>
+  <text x="398" y="310" fill="#00cc66" font-size="9">GPIO 22 ●</text>
+  <text x="398" y="325" fill="#00cc66" font-size="9">GPIO 23 ●</text>
+  <!-- Right pins -->
+  <text x="515" y="145" fill="#00cc66" font-size="9">● GPIO 15</text>
+  <text x="515" y="160" fill="#00cc66" font-size="9">● GPIO 2</text>
+  <text x="515" y="175" fill="#00cc66" font-size="9">● GPIO 4</text>
+  <text x="515" y="190" fill="#00cc66" font-size="9">● GPIO 16</text>
+  <text x="515" y="205" fill="#00cc66" font-size="9">● GPIO 17</text>
+  <text x="515" y="220" fill="#00cc66" font-size="9">● GPIO 5</text>
+  <text x="515" y="235" fill="#00cc66" font-size="9">● GPIO 32</text>
+  <!-- Pin dots left -->
+  <circle cx="390" cy="112" r="3" fill="#00ff88"/>
+  <circle cx="390" cy="127" r="3" fill="#ff4455"/>
+  <circle cx="390" cy="142" r="3" fill="#00ff88"/>
+  <circle cx="390" cy="157" r="3" fill="#00ff88"/>
+  <circle cx="390" cy="172" r="3" fill="#00ff88"/>
+  <circle cx="390" cy="187" r="3" fill="#00ff88"/>
+  <circle cx="390" cy="202" r="3" fill="#00ff88"/>
+  <circle cx="390" cy="217" r="3" fill="#00ff88"/>
+  <circle cx="390" cy="232" r="3" fill="#00ff88"/>
+  <circle cx="390" cy="257" r="3" fill="#00ff88"/>
+  <circle cx="390" cy="272" r="3" fill="#00ff88"/>
+  <circle cx="390" cy="287" r="3" fill="#00ff88"/>
+  <circle cx="390" cy="307" r="3" fill="#ffcc00"/>
+  <circle cx="390" cy="322" r="3" fill="#ff4455"/>
+  <!-- Pin dots right -->
+  <circle cx="570" cy="142" r="3" fill="#00ff88"/>
+  <circle cx="570" cy="157" r="3" fill="#00ff88"/>
+  <circle cx="570" cy="172" r="3" fill="#00ff88"/>
+  <circle cx="570" cy="187" r="3" fill="#00ff88"/>
+  <circle cx="570" cy="202" r="3" fill="#00ff88"/>
+  <circle cx="570" cy="217" r="3" fill="#00ff88"/>
+  <circle cx="570" cy="232" r="3" fill="#00ff88"/>
+
+  <!-- ═════════════════ TB6612FNG #1 (Left Motors) ══════════════ -->
+  <rect x="60" y="100" width="160" height="180" rx="4" fill="#030f08" stroke="#ffaa00" stroke-width="1.5"/>
+  <rect x="60" y="100" width="160" height="22" rx="4" fill="#331a00"/>
+  <text x="140" y="116" text-anchor="middle" fill="#ffaa00" font-size="10" font-weight="bold" letter-spacing="1">TB6612FNG  #1</text>
+  <text x="70" y="138" fill="#ffcc66" font-size="9">AIN1 ●</text>
+  <text x="70" y="153" fill="#ffcc66" font-size="9">AIN2 ●</text>
+  <text x="70" y="168" fill="#ffcc66" font-size="9">PWMA ●</text>
+  <text x="70" y="183" fill="#ffcc66" font-size="9">BIN1 ●</text>
+  <text x="70" y="198" fill="#ffcc66" font-size="9">BIN2 ●</text>
+  <text x="70" y="213" fill="#ffcc66" font-size="9">PWMB ●</text>
+  <text x="70" y="228" fill="#ff4455" font-size="9">GND ●</text>
+  <text x="70" y="243" fill="#00cc66" font-size="9">VCC ●</text>
+  <text x="70" y="258" fill="#ffcc00" font-size="9">STBY●</text>
+  <text x="120" y="138" fill="#cccccc" font-size="8">→ M1+/M1-</text>
+  <text x="120" y="163" fill="#cccccc" font-size="8">→ M2+/M2-</text>
+  <!-- Connector dots -->
+  <circle cx="60" cy="135" r="3" fill="#ffcc00"/>
+  <circle cx="60" cy="150" r="3" fill="#ffcc00"/>
+  <circle cx="60" cy="165" r="3" fill="#ffcc00"/>
+  <circle cx="60" cy="180" r="3" fill="#ffcc00"/>
+  <circle cx="60" cy="195" r="3" fill="#ffcc00"/>
+  <circle cx="60" cy="210" r="3" fill="#ffcc00"/>
+  <circle cx="60" cy="225" r="3" fill="#ff4455"/>
+  <circle cx="60" cy="240" r="3" fill="#00ff88"/>
+  <circle cx="60" cy="255" r="3" fill="#ffcc00"/>
+
+  <!-- ═════════════════ TB6612FNG #2 (Right Motors) ════════════ -->
+  <rect x="840" y="100" width="160" height="180" rx="4" fill="#030f08" stroke="#ffaa00" stroke-width="1.5"/>
+  <rect x="840" y="100" width="160" height="22" rx="4" fill="#331a00"/>
+  <text x="920" y="116" text-anchor="middle" fill="#ffaa00" font-size="10" font-weight="bold" letter-spacing="1">TB6612FNG  #2</text>
+  <text x="850" y="138" fill="#ffcc66" font-size="9">AIN1 ●</text>
+  <text x="850" y="153" fill="#ffcc66" font-size="9">AIN2 ●</text>
+  <text x="850" y="168" fill="#ffcc66" font-size="9">PWMA ●</text>
+  <text x="850" y="183" fill="#ffcc66" font-size="9">BIN1 ●</text>
+  <text x="850" y="198" fill="#ffcc66" font-size="9">BIN2 ●</text>
+  <text x="850" y="213" fill="#ffcc66" font-size="9">PWMB ●</text>
+  <text x="850" y="228" fill="#ff4455" font-size="9">GND ●</text>
+  <text x="850" y="243" fill="#00cc66" font-size="9">VCC ●</text>
+  <text x="850" y="258" fill="#ffcc00" font-size="9">STBY●</text>
+  <text x="900" y="138" fill="#cccccc" font-size="8">→ M3+/M3-</text>
+  <text x="900" y="163" fill="#cccccc" font-size="8">→ M4+/M4-</text>
+  <circle cx="840" cy="135" r="3" fill="#ffcc00"/>
+  <circle cx="840" cy="150" r="3" fill="#ffcc00"/>
+  <circle cx="840" cy="165" r="3" fill="#ffcc00"/>
+  <circle cx="840" cy="180" r="3" fill="#ffcc00"/>
+  <circle cx="840" cy="195" r="3" fill="#ffcc00"/>
+  <circle cx="840" cy="210" r="3" fill="#ffcc00"/>
+  <circle cx="840" cy="225" r="3" fill="#ff4455"/>
+  <circle cx="840" cy="240" r="3" fill="#00ff88"/>
+  <circle cx="840" cy="255" r="3" fill="#ffcc00"/>
+
+  <!-- ══════════════════ Servo Motor ══════════════════════════ -->
+  <rect x="140" y="400" width="130" height="80" rx="4" fill="#030f08" stroke="#4488ff" stroke-width="1.5"/>
+  <rect x="140" y="400" width="130" height="22" rx="4" fill="#001133"/>
+  <text x="205" y="416" text-anchor="middle" fill="#4488ff" font-size="10" font-weight="bold" letter-spacing="1">SERVO MOTOR</text>
+  <text x="150" y="436" fill="#aaccff" font-size="9">SIGNAL ●── GPIO 18</text>
+  <text x="150" y="451" fill="#00cc66" font-size="9">VCC ●── 5V</text>
+  <text x="150" y="466" fill="#ff4455" font-size="9">GND ●── GND</text>
+  <circle cx="140" cy="433" r="3" fill="#ffcc00"/>
+  <circle cx="140" cy="448" r="3" fill="#00ff88"/>
+  <circle cx="140" cy="463" r="3" fill="#ff4455"/>
+
+  <!-- ══════════════════ Ultrasonic Sensor ════════════════════ -->
+  <rect x="140" y="510" width="130" height="95" rx="4" fill="#030f08" stroke="#cc44ff" stroke-width="1.5"/>
+  <rect x="140" y="510" width="130" height="22" rx="4" fill="#1a0033"/>
+  <text x="205" y="526" text-anchor="middle" fill="#cc44ff" font-size="10" font-weight="bold" letter-spacing="1">HC-SR04</text>
+  <text x="150" y="547" fill="#dd88ff" font-size="9">VCC ●── 5V</text>
+  <text x="150" y="562" fill="#dd88ff" font-size="9">TRIG ●── GPIO 19</text>
+  <text x="150" y="577" fill="#dd88ff" font-size="9">ECHO ●── GPIO 21</text>
+  <text x="150" y="592" fill="#ff4455" font-size="9">GND ●── GND</text>
+  <circle cx="140" cy="544" r="3" fill="#00ff88"/>
+  <circle cx="140" cy="559" r="3" fill="#cc44ff"/>
+  <circle cx="140" cy="574" r="3" fill="#cc44ff"/>
+  <circle cx="140" cy="589" r="3" fill="#ff4455"/>
+
+  <!-- ══════════════════ ESP32-CAM ════════════════════════════ -->
+  <rect x="390" y="460" width="180" height="130" rx="4" fill="#030f08" stroke="#ff8800" stroke-width="1.5"/>
+  <rect x="390" y="460" width="180" height="22" rx="4" fill="#1a0800"/>
+  <text x="480" y="476" text-anchor="middle" fill="#ff8800" font-size="10" font-weight="bold" letter-spacing="2">ESP32-CAM</text>
+  <text x="400" y="498" fill="#ffaa44" font-size="9">5V ●</text>
+  <text x="400" y="513" fill="#ffaa44" font-size="9">GND ●</text>
+  <text x="400" y="533" fill="#aaaaaa" font-size="9">Stream: http://&lt;ip&gt;/stream</text>
+  <text x="400" y="548" fill="#aaaaaa" font-size="9">Snapshot: http://&lt;ip&gt;/snapshot</text>
+  <text x="400" y="568" fill="#ff8800" font-size="8">★ Separate power supply</text>
+  <text x="400" y="580" fill="#ff8800" font-size="8">  (same WiFi network)</text>
+  <circle cx="390" cy="495" r="3" fill="#00ff88"/>
+  <circle cx="390" cy="510" r="3" fill="#ff4455"/>
+
+  <!-- ══════════════════ LEDs ══════════════════════════════════ -->
+  <rect x="700" y="400" width="130" height="95" rx="4" fill="#030f08" stroke="#00ff88" stroke-width="1.5"/>
+  <rect x="700" y="400" width="130" height="22" rx="4" fill="#001a08"/>
+  <text x="765" y="416" text-anchor="middle" fill="#00ff88" font-size="10" font-weight="bold" letter-spacing="2">LEDs</text>
+  <text x="710" y="438" fill="#aaffcc" font-size="9">● STATUS LED</text>
+  <text x="710" y="453" fill="#aaaaaa" font-size="9">  GPIO 22 → 220Ω → LED+</text>
+  <text x="710" y="468" fill="#aaffcc" font-size="9">● ALERT LED</text>
+  <text x="710" y="483" fill="#aaaaaa" font-size="9">  GPIO 23 → 220Ω → LED+</text>
+
+  <!-- ══════════════════ Motors ════════════════════════════════ -->
+  <!-- Left motors -->
+  <rect x="60" y="360" width="100" height="30" rx="3" fill="#030f08" stroke="#ffcc00" stroke-width="1"/>
+  <text x="110" y="380" text-anchor="middle" fill="#ffcc00" font-size="9">MOTOR 1 (L-Front)</text>
+
+  <rect x="60" y="400" width="100" height="30" rx="3" fill="#030f08" stroke="#ffcc00" stroke-width="1"/>
+  <text x="110" y="420" text-anchor="middle" fill="#ffcc00" font-size="9">MOTOR 2 (L-Rear)</text>
+
+  <!-- Right motors -->
+  <rect x="900" y="360" width="100" height="30" rx="3" fill="#030f08" stroke="#ffcc00" stroke-width="1"/>
+  <text x="950" y="380" text-anchor="middle" fill="#ffcc00" font-size="9">MOTOR 3 (R-Front)</text>
+
+  <rect x="900" y="400" width="100" height="30" rx="3" fill="#030f08" stroke="#ffcc00" stroke-width="1"/>
+  <text x="950" y="420" text-anchor="middle" fill="#ffcc00" font-size="9">MOTOR 4 (R-Rear)</text>
+
+  <!-- ══════════════════ Power Supply ══════════════════════════ -->
+  <rect x="390" y="640" width="180" height="110" rx="4" fill="#030f08" stroke="#ff4455" stroke-width="2"/>
+  <rect x="390" y="640" width="180" height="22" rx="4" fill="#1a0005"/>
+  <text x="480" y="657" text-anchor="middle" fill="#ff4455" font-size="11" font-weight="bold" letter-spacing="2">POWER</text>
+  <text x="400" y="675" fill="#ff8888" font-size="9">Battery: 7.4V LiPo 2S</text>
+  <text x="400" y="690" fill="#ff8888" font-size="9">Buck → 5V for ESP32/CAM</text>
+  <text x="400" y="705" fill="#ff8888" font-size="9">Motor Vm → direct 7.4V</text>
+  <text x="400" y="720" fill="#ffaa44" font-size="9">★ Use BMS/TP4056 for safety</text>
+  <text x="400" y="737" fill="#ffaa44" font-size="9">★ Common GND on all parts</text>
+  <circle cx="390" cy="695" r="3" fill="#ff4455"/>
+  <circle cx="570" cy="695" r="3" fill="#ff4455"/>
+
+  <!-- ══════════════════════ WIRES ═════════════════════════════ -->
+
+  <!-- ESP32 → TB6612 #1 control wires (LEFT side) -->
+  <!-- GPIO12 → AIN1 -->
+  <path d="M390,142 L340,142 L340,135 L220,135" stroke="#00ff88" stroke-width="1.2" fill="none" stroke-dasharray="5,3" marker-end="url(#arrowG)"/>
+  <!-- GPIO13 → AIN2 -->
+  <path d="M390,157 L345,157 L345,150 L220,150" stroke="#00ff88" stroke-width="1.2" fill="none" stroke-dasharray="5,3" marker-end="url(#arrowG)"/>
+  <!-- GPIO14 → PWMA -->
+  <path d="M390,172 L350,172 L350,165 L220,165" stroke="#ffcc00" stroke-width="1.2" fill="none" stroke-dasharray="5,3" marker-end="url(#arrowY)"/>
+  <!-- GPIO25 → BIN1 -->
+  <path d="M390,187 L355,187 L355,180 L220,180" stroke="#00ff88" stroke-width="1.2" fill="none" stroke-dasharray="5,3" marker-end="url(#arrowG)"/>
+  <!-- GPIO26 → BIN2 -->
+  <path d="M390,202 L352,202 L352,195 L220,195" stroke="#00ff88" stroke-width="1.2" fill="none" stroke-dasharray="5,3" marker-end="url(#arrowG)"/>
+  <!-- GPIO27 → PWMB -->
+  <path d="M390,217 L348,217 L348,210 L220,210" stroke="#ffcc00" stroke-width="1.2" fill="none" stroke-dasharray="5,3" marker-end="url(#arrowY)"/>
+  <!-- GPIO33 → STBY1 -->
+  <path d="M390,232 L344,232 L344,255 L220,255" stroke="#ffcc00" stroke-width="1.2" fill="none" stroke-dasharray="5,3" marker-end="url(#arrowY)"/>
+
+  <!-- ESP32 → TB6612 #2 control wires (RIGHT side) -->
+  <!-- GPIO15 → AIN1 -->
+  <path d="M570,142 L620,142 L620,135 L840,135" stroke="#00ff88" stroke-width="1.2" fill="none" stroke-dasharray="5,3" marker-end="url(#arrowG)"/>
+  <!-- GPIO2 → AIN2 -->
+  <path d="M570,157 L625,157 L625,150 L840,150" stroke="#00ff88" stroke-width="1.2" fill="none" stroke-dasharray="5,3" marker-end="url(#arrowG)"/>
+  <!-- GPIO4 → PWMA -->
+  <path d="M570,172 L630,172 L630,165 L840,165" stroke="#ffcc00" stroke-width="1.2" fill="none" stroke-dasharray="5,3" marker-end="url(#arrowY)"/>
+  <!-- GPIO16 → BIN1 -->
+  <path d="M570,187 L635,187 L635,180 L840,180" stroke="#00ff88" stroke-width="1.2" fill="none" stroke-dasharray="5,3" marker-end="url(#arrowG)"/>
+  <!-- GPIO17 → BIN2 -->
+  <path d="M570,202 L632,202 L632,195 L840,195" stroke="#00ff88" stroke-width="1.2" fill="none" stroke-dasharray="5,3" marker-end="url(#arrowG)"/>
+  <!-- GPIO5 → PWMB -->
+  <path d="M570,217 L628,217 L628,210 L840,210" stroke="#ffcc00" stroke-width="1.2" fill="none" stroke-dasharray="5,3" marker-end="url(#arrowY)"/>
+  <!-- GPIO32 → STBY2 -->
+  <path d="M570,232 L624,232 L624,255 L840,255" stroke="#ffcc00" stroke-width="1.2" fill="none" stroke-dasharray="5,3" marker-end="url(#arrowY)"/>
+
+  <!-- TB6612 #1 → Motors -->
+  <path d="M60,140 L30,140 L30,375 L60,375" stroke="#ffcc00" stroke-width="1.5" fill="none" marker-end="url(#arrowY)"/>
+  <path d="M60,165 L25,165 L25,415 L60,415" stroke="#ffcc00" stroke-width="1.5" fill="none" marker-end="url(#arrowY)"/>
+
+  <!-- TB6612 #2 → Motors -->
+  <path d="M1000,140 L1030,140 L1030,375 L1000,375" stroke="#ffcc00" stroke-width="1.5" fill="none" marker-end="url(#arrowY)"/>
+  <path d="M1000,165 L1035,165 L1035,415 L1000,415" stroke="#ffcc00" stroke-width="1.5" fill="none" marker-end="url(#arrowY)"/>
+
+  <!-- ESP32 GPIO18 → Servo -->
+  <path d="M390,257 L365,257 L365,433 L270,433" stroke="#4488ff" stroke-width="1.5" fill="none" stroke-dasharray="6,3" marker-end="url(#arrowB)"/>
+
+  <!-- ESP32 GPIO19 → TRIG -->
+  <path d="M390,272 L370,272 L370,560 L270,560" stroke="#cc44ff" stroke-width="1.5" fill="none" stroke-dasharray="6,3" marker-end="url(#arrowG)"/>
+
+  <!-- ESP32 GPIO21 → ECHO -->
+  <path d="M390,287 L375,287 L375,574 L270,574" stroke="#cc44ff" stroke-width="1.5" fill="none" stroke-dasharray="6,3" marker-end="url(#arrowG)"/>
+
+  <!-- ESP32 GPIO22 → LED Status -->
+  <path d="M570,307 L670,307 L670,425 L700,425" stroke="#00ff88" stroke-width="1.5" fill="none" stroke-dasharray="6,3" marker-end="url(#arrowG)"/>
+
+  <!-- ESP32 GPIO23 → LED Alert -->
+  <path d="M570,322 L675,322 L675,453 L700,453" stroke="#ff4455" stroke-width="1.5" fill="none" stroke-dasharray="6,3" marker-end="url(#arrowR)"/>
+
+  <!-- Power lines GND (red) -->
+  <path d="M480,640 L480,600 L570,600 L570,350" stroke="#ff4455" stroke-width="1.5" fill="none" opacity="0.5"/>
+  <text x="578" y="600" fill="#ff445588" font-size="9">GND bus</text>
+
+  <!-- Power line 5V (green) -->
+  <path d="M480,640 L480,612 L390,612 L390,590" stroke="#00ff88" stroke-width="1.5" fill="none" opacity="0.4"/>
+  <text x="395" y="610" fill="#00ff8866" font-size="9">5V bus</text>
+
+  <!-- WiFi connection indicator -->
+  <rect x="700" y="520" width="160" height="75" rx="4" fill="#030f08" stroke="#4488ff" stroke-width="1" stroke-dasharray="4,3"/>
+  <text x="780" y="538" text-anchor="middle" fill="#4488ff" font-size="9" font-weight="bold" letter-spacing="2">WiFi NETWORK</text>
+  <text x="780" y="555" text-anchor="middle" fill="#4488ffaa" font-size="9">ESP32 ←→ PC</text>
+  <text x="780" y="570" text-anchor="middle" fill="#4488ffaa" font-size="9">ws://&lt;ip&gt;/ws</text>
+  <text x="780" y="585" text-anchor="middle" fill="#4488ffaa" font-size="9">ESP32-CAM ←→ PC</text>
+  <!-- WiFi waves -->
+  <path d="M745,545 Q750,540 755,545" stroke="#4488ff" stroke-width="1.5" fill="none"/>
+  <path d="M741,548 Q750,538 759,548" stroke="#4488ff" stroke-width="1.2" fill="none"/>
+  <path d="M737,551 Q750,536 763,551" stroke="#4488ff" stroke-width="1" fill="none"/>
+
+  <!-- Legend -->
+  <rect x="60" y="690" width="290" height="115" rx="4" fill="#030f08" stroke="#00ff8833" stroke-width="1"/>
+  <text x="75" y="710" fill="#00ff88" font-size="10" font-weight="bold" letter-spacing="2">LEGEND</text>
+  <line x1="75" y1="718" x2="330" y2="718" stroke="#00ff8833"/>
+
+  <line x1="75" y1="732" x2="105" y2="732" stroke="#00ff88" stroke-width="2" stroke-dasharray="5,3"/>
+  <text x="112" y="736" fill="#aaaaaa" font-size="9">Signal / Control wire</text>
+
+  <line x1="75" y1="748" x2="105" y2="748" stroke="#ffcc00" stroke-width="2" stroke-dasharray="5,3"/>
+  <text x="112" y="752" fill="#aaaaaa" font-size="9">PWM wire</text>
+
+  <line x1="75" y1="764" x2="105" y2="764" stroke="#ffcc00" stroke-width="2"/>
+  <text x="112" y="768" fill="#aaaaaa" font-size="9">Motor power wire</text>
+
+  <line x1="75" y1="780" x2="105" y2="780" stroke="#ff4455" stroke-width="2"/>
+  <text x="112" y="784" fill="#aaaaaa" font-size="9">GND (common ground)</text>
+
+  <line x1="75" y1="796" x2="105" y2="796" stroke="#00ff88" stroke-width="2"/>
+  <text x="112" y="800" fill="#aaaaaa" font-size="9">VCC / 5V power</text>
+
+  <!-- Note box -->
+  <rect x="700" y="620" width="330" height="75" rx="4" fill="#1a0800" stroke="#ff880044" stroke-width="1"/>
+  <text x="715" y="638" fill="#ff8800" font-size="9" font-weight="bold">⚠ IMPORTANT NOTES</text>
+  <text x="715" y="653" fill="#aaaaaa" font-size="9">1. All GNDs must be connected together</text>
+  <text x="715" y="668" fill="#aaaaaa" font-size="9">2. ESP32-CAM uses separate 5V supply</text>
+  <text x="715" y="683" fill="#aaaaaa" font-size="9">3. Add 220Ω resistors on LED pins</text>
+  <text x="715" y="696" fill="#aaaaaa" font-size="9">4. VM pin on TB6612 = 7.4V from battery</text>
+</svg>
